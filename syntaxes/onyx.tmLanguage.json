@@ -1,0 +1,513 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Onyx",
+	"scopeName": "source.onyx",
+	"patterns": [
+		{ "include": "#comments" },
+		{ "include": "#macros" },
+		{ "include": "#exports" },
+		{ "include": "#keywords" },
+		{ "include": "#percents" },
+		{ "include": "#declarations" },
+		{ "include": "#punctuation" },
+		{ "include": "#constants" },
+		{ "include": "#strings" },
+		{ "include": "#entities" }
+	],
+	"repository": {
+		"comments": {
+			"name": "comment.line",
+			"match": "#.*$"
+		},
+		"macros": {
+			"begin": "\\\\?({%|{{)",
+			"end": "%}|}}",
+			"captures": { "0": { "name": "entity.name.tag" } },
+			"contentName": "meta.embedded.block.lua",
+			"patterns": [{
+				"include": "source.lua"
+			}]
+		},
+		"exports": {
+			"begin": "\\bexport\\b",
+			"beginCaptures": { "0": { "name": "keyword.control.import" } },
+			"end": "{",
+			"endCaptures": { "0": { "name": "punctuation.section.block.begin" } },
+			"name": "meta.function",
+			"patterns": [{
+				"include": "#c/primitives"
+			}, {
+				"match": "[&*]",
+				"name": "keyword.operator"
+			}, {
+				"begin": "(\\w+)\\s*(\\()",
+				"beginCaptures": {
+					"1": { "name": "entity.name.function" },
+					"2": { "name": "punctuation.section.parens.begin" }
+				},
+				"end": "\\)",
+				"endCaptures": { "0": { "name": "punctuation.section.parens.end" } },
+				"contentName": "meta.function.parameters",
+				"patterns": [{
+					"include": "#c/primitives"
+				}, {
+					"match": "[&*]",
+					"name": "keyword.operator"
+				}, {
+					"match": "\\w+",
+					"name": "variable.parameter"
+				}]
+			}]
+		},
+		"keywords": {"patterns": [
+			{
+				"name": "keyword.control.onyx",
+				"match": "\\b(local|macro|hook|forall|where|delegate|alias|return|yield|do|end|while|until|break|continue|begin|throw|catch|rescue|threadsafe|volatile|unsafe|unordered|asm|reopen)\\b"
+			}, {
+				"name": "keyword.control.import",
+				"match": "\\b(import|require|derive|refine|using)\\b"
+			}, {
+				"name": "keyword.control.conditional",
+				"match": "\\b(if|elsif|else|unless)\\b"
+			}, {
+				"name": "keyword.operator.word",
+				"match": "\\b(new|alloca)\\b"
+			}
+		]},
+		"percents": { "patterns": [
+			{
+				"comment": "Macro types",
+				"match": "%(num|string|bool)\\b",
+				"name": "entity.name.tag"
+			},	{
+				"comment": "Quoted string",
+				"begin": "(%[q])(?=[\\({\\[<])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word" } },
+				"end": "(?<=[\\)}\\]>])",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.string.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.string.end" } }
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.string.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.string.end" } }
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.string.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.string.end" } }
+					}, {
+						"begin": "<",
+						"beginCaptures": { "0": {"name": "punctuation.definition.string.begin" } },
+						"end": "(?<!\\\\)>",
+						"endCaptures": { "0": {"name": "punctuation.definition.string.end" } }
+					}
+				],
+				"contentName": "string.quoted.other",
+				"name": "meta.string"
+			}, {
+				"comment": "Space-separated words",
+				"begin": "(%[w])(?=[\\({\\[])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word" } },
+				"end": "(?<=[\\)}\\]])",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{
+							"match": "\\w+",
+							"name": "string.unquoted"
+						}]
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{
+							"match": "\\w+",
+							"name": "string.unquoted"
+						}]
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{
+							"match": "\\w+",
+							"name": "string.unquoted"
+						}]
+					}
+				],
+				"name": "meta.group"
+			},	{
+				"comment": "Symbols",
+				"begin": "(%y)(?=[\\({\\[])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word"} },
+				"end": "(?<=[\\)}\\]])",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/symbols" }]
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"contentName": "meta.generic",
+						"patterns": [{ "include": "#percent/symbols" }]
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/symbols" }]
+					}
+				],
+				"name": "meta.group"
+			}, {
+				"comment": "Char sequence",
+				"begin": "(%c)(?=[\\({\\[])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word" } },
+				"end": "(?<=[\\)}\\]])",
+				"name": "meta.group",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/chars" }]
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"contentName": "meta.generic",
+						"patterns": [{ "include": "#percent/chars" }]
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/chars" }]
+					}
+				]
+			},{
+				"comment": "Integer numerics",
+				"begin": "(%j?(?:(?:i|u|ui|si)(?:_?(?:1|8|16|32|64|128))?|[us]?s|I))(?=[\\({\\[])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word" } },
+				"end": "(?<=[\\)}\\]])",
+				"name": "meta.group",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/integers" }]
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/integers" }]
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/integers" }]
+					}
+				]
+			}, {
+				"comment": "Point numerics",
+				"begin": "(%j?(?:f(?:32|64|128)?|d(?:64|128)?|[QD]\\d+x\\d+|p(?:8|16|32|64)?|F))(?=[\\({\\[])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word" } },
+				"end": "(?<=[\\)}\\]])",
+				"name": "meta.group",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"include": "#percent/points"
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"include": "#percent/points"
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"include": "#percent/points"
+					}
+				]
+			}, {
+				"comment": "Rational numerics",
+				"begin": "(%j?R)(?=[\\({\\[])",
+				"beginCaptures": { "0": { "name": "keyword.operator.word" } },
+				"end": "(?<=[\\)}\\]])",
+				"name": "meta.group",
+				"patterns": [
+					{
+						"begin": "\\(",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\)",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/rationals" }]
+					}, {
+						"begin": "{",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)}",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/rationals" }]
+					}, {
+						"begin": "\\[",
+						"beginCaptures": { "0": {"name": "punctuation.definition.generic.begin" } },
+						"end": "(?<!\\\\)\\]",
+						"endCaptures": { "0": {"name": "punctuation.definition.generic.end" } },
+						"patterns": [{ "include": "#percent/rationals" }]
+					}
+				]
+			}
+		]},
+		"declarations": {
+			"patterns": [{
+				"name": "storage.modifier",
+				"match": "\\b(mut|immut|const|final|getter|native|virtual|abstract|static|private|protected|in|out|same)\\b"
+			}, {
+				"name": "keyword.declaration.value",
+				"match": "\\bval\\b"
+			}, {
+				"name": "keyword.declaration.annotation",
+				"match": "\\bannotation\\b"
+			}, {
+				"name": "keyword.declaration.class",
+				"match": "\\bclass\\b"
+			}, {
+				"name": "keyword.declaration.namespace",
+				"match": "\\b(namespace|refinement)\\b"
+			}, {
+				"name": "keyword.declaration.struct",
+				"match": "\\bstruct\\b"
+			}, {
+				"name": "keyword.declaration.enum",
+				"match": "\\b(enum|flag)\\b"
+			}, {
+				"name": "keyword.declaration.interface",
+				"match": "\\b(module)\\b"
+			}, {
+				"comment": "An Onyx function declaration",
+				"match": "\\b(decl|def|impl|overload|redef)\\s+(fun|gen|unop|binop)\\s+([a-z_]\\w*[\\?\\!]*)",
+				"captures": {
+					"1": { 	"name": "keyword.declaration.function" },
+					"2": { 	"name": "keyword.declaration.function" },
+					"3": {
+						"patterns": [{
+							"match": "initialize",
+							"name": "entity.name.function.constructor"
+						}, {
+							"match": "finalize",
+							"name": "entity.name.function.destructor"
+						}, {
+							"match": ".+",
+							"name": "entity.name.function"
+						}]
+					}
+				}
+			}]
+		},
+		"punctuation": {
+			"patterns": [{
+				"name": "punctuation.separator",
+				"match": "\\b[,|\\.|:(?!:)|=>|\\|>]\\b"
+			}, {
+				"name": "punctuation.terminator",
+				"match": ";"
+			}, {
+				"name": "punctuation.accessor",
+				"match": "(:{2}|\\*{2}|\\.{2,3})"
+			}, {
+				"name": "entity.name.function",
+				"match": "->|~>"
+			}, {
+				"name": "keyword.operator",
+				"match": "[~!%\\^&\\*\\-=\\+\\|<>/]+"
+			}]
+		},
+		"constants": {"patterns": [
+			{
+				"comment": "Language constants",
+				"match": "\\b(true|false|nil|void)\\b",
+				"name": "constant.language"
+			}, {
+				"begin": "\"",
+				"end": "(?<!\\\\)\"",
+				"name": "string.quoted.double.onyx"
+			}, {
+				"begin": "'",
+				"end": "(?<!\\\\)'",
+				"name": "string.quoted.single.onyx"
+			}, {
+				"comment": "A symbolic argument",
+				"match": "(\\w+:|`[\\w\\s]+`:|`\\w+:)(?!:)",
+				"name": "constant.other.symbol"
+			}, {
+				"comment": "Core and primitive Onyx types",
+				"match": "\\b(?<!:{2})(Integer|[SU]?Int(1|8|16|32|64|128)?|[SU]?Size|Bit|Bool|Byte|Char|Float|FBin(32|64|128)?|FDec(64|128)?|Fixed|XBin|XDec|Posit|Quire|Tuple|NamedTuple|Pointer|Array|Vector|Union|Void|Nil|Undef|Complex|Ref|Proc|Promise|Gen)\\b",
+				"name": "storage.type"
+			}, {
+				"comment": "An Onyx type reference",
+				"match": "\\b[A-Z]\\w*\\b",
+				"name": "entity.name.type"
+			}, {
+				"comment": "A symbol",
+				"match": ":\\w+|:`[\\w\\s]+`|:`\\w+",
+				"name": "constant.other.symbol"
+			}, {
+				"comment": "Binary integers",
+				"match": "\\b0b([01]{1,8}_?)+(j?((si|ui|i|u)\\d*)|[us]?s)\\b",
+				"name": "constant.numeric.integer.binary"
+			}, {
+				"comment": "Octal integers",
+				"match": "\\b0o([0-7]{1,3}_?)+(j?((si|ui|i|u)\\d*)|[us]?s)\\b",
+				"name": "constant.numeric.integer.octal"
+			}, {
+				"comment": "Hexadecimal integers",
+				"match": "\\b0x(\\h{1,2}_?)+(j?((si|ui|i|u)\\d*)|[us]?s)\\b",
+				"name": "constant.numeric.integer.hexadecimal"
+			}, {
+				"comment": "Big hexadecimal rational numbers",
+				"match": "\\b0x(\\h{1,2}_?)+/(\\h{1,2}_?)+j?R\\b",
+				"name": "constant.numeric.integer.hexadecimal"
+			}, {
+				"comment": "Hexadecimal floating points with power required",
+				"match": "\\b0x(\\h{1,2}_?)+[pP]\\-?\\d+(j?(f(32|64|128)?|d(64|128)?|p(8|16|32|64)?|F))?\\b",
+				"name": "constant.numeric.float.hexadecimal"
+			}, {
+				"comment": "Decimal floating points with fraction required",
+				"match": "\\b\\d+\\.\\d+([eE]\\-?\\d+)?(j?(f(32|64|128)?|d(64|128)?|p(8|16|32|64)?|F))?\\b",
+				"name": "constant.numeric.float.decimal"
+			}, {
+				"comment": "Decimal floating points with type required",
+				"match": "\\b\\d+([eE]\\-?\\d+)?(j?(f(32|64|128)?|d(64|128)?|p(8|16|32|64)?|F))\\b",
+				"name": "constant.numeric.float.decimal"
+			}, {
+				"comment": "Decimal fixed points with fraction required",
+				"match": "\\b\\d+\\.\\d+j?[QD]\\d+x\\d+\\b",
+				"name": "constant.numeric.float.decimal"
+			}, {
+				"comment": "Big decimal rationals",
+				"match": "\\b(\\d_?)+/(\\d_?)+j?R\\b",
+				"name": "constant.numeric.integer.decimal"
+			}, {
+				"comment": "Decimal integers (can't begin with zero)",
+				"match": "\\b[1-9][_?\\d]*(_?j?((si|ui|i|u)\\d*)|[us]?s|I)?\\b",
+				"name": "constant.numeric.decimal"
+			}, {
+				"comment": "Zero decimal integers",
+				"match": "\\b0(_?j?((si|ui|i|u)\\d*)|[us]?s|I)?\\b",
+				"name": "constant.numeric.decimal"
+			}
+		]},
+		"entities": {"patterns": [
+			{
+				"comment": "Special Onyx variables",
+				"match": "\\b(self|_)\\b",
+				"name": "variable.language"
+			}, {
+				"comment": "An intrinsic call",
+				"match": "\\\\?@[\\w]+[\\?\\!]*",
+				"name": "entity.name.tag"
+			}, {
+				"comment": "An annotation application",
+				"match": "(@)\\[.+\\]",
+				"captures": {
+					"1": { "name": "punctuation.definition.annotation" }
+				},
+				"name": "variable.annotation"
+			}, {
+				"comment": "An Onyx method call",
+				"match": "(?<=\\.|\\->)\\b([a-z_]\\w*[\\?\\!]*)",
+				"captures": {
+					"1": { "name": "entity.name.method" }
+				}
+			}, {
+				"comment": "An Onyx function call",
+				"match": "(?<![\\$\\.])\\b([a-z_]\\w*[\\?\\!]*)",
+				"captures": {
+					"1": { "name": "entity.name.function" }
+				}
+			}, {
+				"comment": "A C type reference",
+				"match": "\\$\\b\\w+\\b(?!\\()",
+				"name": "support.type"
+			}, {
+				"comment": "A C function call",
+				"match": "\\$\\b\\w+\\b(?=\\()",
+				"name": "support.function"
+			}, {
+				"match": "[_a-z]\\w*|`\\w+|`[\\w\\s]+`",
+				"name": "variable.other"
+			}
+		]},
+		"percent/symbols": {
+			"match": "\\b\\w+\\b",
+			"name": "constant.other.symbol"
+		},
+		"percent/chars": {
+			"match": "[\\x20-\\x7E]",
+			"name": "string.quoted.single"
+		},
+		"percent/integers": {
+			"patterns": [{
+				"match": "b([01]{1,8}_?)+",
+				"name": "constant.numeric.integer.binary"
+			}, {
+				"match": "o([0-7]{1,3}_?)+",
+				"name": "constant.numeric.integer.octal"
+			}, {
+				"match": "x(\\h{1,2}_?)+",
+				"name": "constant.numeric.integer.hexadecimal"
+			}, {
+				"match": "\\d+",
+				"name": "constant.numeric.decimal"
+			}]
+		},
+		"percent/points": {
+			"patterns": [{
+				"match": "x(\\h{1,2}_?)+[pP]\\-?\\d+",
+				"name": "constant.numeric.float.hexadecimal"
+			}, {
+				"match": "\\d+(\\.\\d+)?([eE]\\-?\\d+)?",
+				"name": "constant.numeric.float.decimal"
+			}]
+		},
+		"percent/rationals": {
+			"patterns": [{
+				"match": "x(\\h{1,2}_?)+/(\\h{1,2}_?)",
+				"name": "constant.numeric.integer.hexadecimal"
+			}, {
+				"match": "\\d+/\\d+",
+				"name": "constant.numeric.decimal"
+			}]
+		},
+		"c/primitives": {
+			"match": "\\b(void|unsigned|short|int|long|short|float|double)\\b",
+			"name": "storage.type.c"
+		}
+	}
+}

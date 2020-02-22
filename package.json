@@ -1,0 +1,28 @@
+{
+    "name": "onyx-lang",
+    "displayName": "Onyx Lang",
+    "description": "Syntax highlighting for Onyx Lang",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.42.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "onyx",
+            "aliases": ["Onyx", "onyx"],
+            "extensions": [".nx"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "onyx",
+            "scopeName": "source.onyx",
+            "path": "./syntaxes/onyx.tmLanguage.json",
+            "embeddedLanguages": {
+                "meta.embedded.block.lua": "lua"
+            }
+        }]
+    }
+}
