@@ -1,28 +1,42 @@
 {
-    "name": "onyx-lang",
-    "displayName": "Onyx Lang",
-    "description": "Syntax highlighting for Onyx Lang",
-    "version": "0.0.1",
-    "engines": {
-        "vscode": "^1.42.0"
-    },
-    "categories": [
-        "Programming Languages"
+  "name": "onyx-lang",
+  "displayName": "Onyx Lang",
+  "description": "Syntax highlighting for Onyx Lang",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.42.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "onyx",
+        "aliases": [
+          "Onyx",
+          "onyx"
+        ],
+        "extensions": [
+          ".nx"
+        ],
+        "configuration": "./language-configuration.json"
+      }
     ],
-    "contributes": {
-        "languages": [{
-            "id": "onyx",
-            "aliases": ["Onyx", "onyx"],
-            "extensions": [".nx"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "onyx",
-            "scopeName": "source.onyx",
-            "path": "./syntaxes/onyx.tmLanguage.json",
-            "embeddedLanguages": {
-                "meta.embedded.block.lua": "lua"
-            }
-        }]
-    }
+    "grammars": [
+      {
+        "language": "onyx",
+        "scopeName": "source.onyx",
+        "path": "./syntaxes/onyx.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.macro.lua": "lua",
+          "meta.embedded.block.asm.llvm": "llvm",
+          "meta.embedded.block.asm.x86_64": "x86_64"
+        }
+      }
+    ]
+  },
+  "devDependencies": {
+    "js-yaml": "^3.13.1"
+  }
 }

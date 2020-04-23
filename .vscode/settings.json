@@ -1,3 +1,5 @@
 {
-  "json.format.enable": false
+  "editor.fontLigatures": false,
+  "json.format.enable": false,
+  "files.defaultLanguage": "onyx"
 }
